@@ -1,4 +1,5 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./interfaces/IKizunaPair.sol";
 import "./UniswapV2ERC20.sol";
@@ -10,13 +11,13 @@ import "./interfaces/IUniswapV2Callee.sol";
 contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     using SafeMath for uint;
 
-    uint public constant MINIMUM_LIQUIDITY = 10 ** 3;
+    uint public constant override MINIMUM_LIQUIDITY = 10 ** 3;
     bytes4 private constant SELECTOR =
         bytes4(keccak256(bytes("transfer(address,uint256)")));
 
-    address public factory;
-    address public token0;
-    address public token1;
+    address public override factory;
+    address public override token0;
+    address public override token1;
 
     bool public initialized;
 
@@ -31,7 +32,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     uint public precisionMultiplier0;
     uint public precisionMultiplier1;
 
-    uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
+    uint public override kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
 
     bool public stableSwap; // if set to true, defines pair type as stable
     bool public pairTypeImmutable; // if set to true, stableSwap states cannot be updated anymore
@@ -47,6 +48,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     function getReserves()
         public
         view
+        override
         returns (
             uint112 _reserve0,
             uint112 _reserve1,
@@ -74,30 +76,14 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     event FeePercentUpdated(uint16 token0FeePercent, uint16 token1FeePercent);
     event SetStableSwap(bool prevStableSwap, bool stableSwap);
     event SetPairTypeImmutable();
-    event Mint(address indexed sender, uint amount0, uint amount1);
-    event Burn(
-        address indexed sender,
-        uint amount0,
-        uint amount1,
-        address indexed to
-    );
-    event Swap(
-        address indexed sender,
-        uint amount0In,
-        uint amount1In,
-        uint amount0Out,
-        uint amount1Out,
-        address indexed to
-    );
-    event Sync(uint112 reserve0, uint112 reserve1);
     event Skim();
 
-    constructor() public {
+    constructor() {
         factory = msg.sender;
     }
 
     // called once by the factory at time of deployment
-    function initialize(address _token0, address _token1) external {
+    function initialize(address _token0, address _token1) external override {
         require(msg.sender == factory && !initialized, "KizunaPair: FORBIDDEN");
         // sufficient check
         token0 = _token0;
@@ -117,7 +103,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     function setFeePercent(
         uint16 newToken0FeePercent,
         uint16 newToken1FeePercent
-    ) external lock {
+    ) external override lock {
         require(
             msg.sender == IKizunaFactory(factory).feePercentOwner(),
             "KizunaPair: only factory's feeAmountOwner"
@@ -174,7 +160,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     // update reserves
     function _update(uint balance0, uint balance1) private {
         require(
-            balance0 <= uint112(-1) && balance1 <= uint112(-1),
+            balance0 <= type(uint).min && balance1 <= type(uint).min,
             "KizunaPair: OVERFLOW"
         );
 
@@ -217,7 +203,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function mint(address to) external lock returns (uint liquidity) {
+    function mint(address to) external override lock returns (uint liquidity) {
         (uint112 _reserve0, uint112 _reserve1, , ) = getReserves();
         // gas savings
         uint balance0 = IERC20(token0).balanceOf(address(this));
@@ -250,7 +236,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     // this low-level function should be called from a contract which performs important safety checks
     function burn(
         address to
-    ) external lock returns (uint amount0, uint amount1) {
+    ) external override lock returns (uint amount0, uint amount1) {
         (uint112 _reserve0, uint112 _reserve1, , ) = getReserves(); // gas savings
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
@@ -294,7 +280,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         uint amount1Out,
         address to,
         bytes calldata data
-    ) external {
+    ) external override {
         TokensData memory tokensData = TokensData({
             token0: token0,
             token1: token1,
@@ -315,7 +301,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         address to,
         bytes calldata data,
         address referrer
-    ) external {
+    ) external override {
         TokensData memory tokensData = TokensData({
             token0: token0,
             token1: token1,
@@ -547,7 +533,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     function getAmountOut(
         uint amountIn,
         address tokenIn
-    ) external view returns (uint) {
+    ) external view override returns (uint) {
         uint16 feePercent = tokenIn == token0
             ? token0FeePercent
             : token1FeePercent;
@@ -600,7 +586,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     }
 
     // force balances to match reserves
-    function skim(address to) external lock {
+    function skim(address to) external override lock {
         address _token0 = token0;
         // gas savings
         address _token1 = token1;
@@ -619,7 +605,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     }
 
     // force reserves to match balances
-    function sync() external lock {
+    function sync() external override lock {
         uint token0Balance = IERC20(token0).balanceOf(address(this));
         uint token1Balance = IERC20(token1).balanceOf(address(this));
         require(
