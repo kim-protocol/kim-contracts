@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.6.5;
 
 import "./interfaces/IKizunaPair.sol";
 import "./UniswapV2ERC20.sol";
@@ -78,7 +78,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     event SetPairTypeImmutable();
     event Skim();
 
-    constructor() {
+    constructor() public {
         factory = msg.sender;
     }
 
@@ -160,7 +160,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     // update reserves
     function _update(uint balance0, uint balance1) private {
         require(
-            balance0 <= type(uint).min && balance1 <= type(uint).min,
+            balance0 <= uint112(-1) && balance1 <= uint112(-1),
             "KizunaPair: OVERFLOW"
         );
 
