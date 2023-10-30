@@ -157,6 +157,64 @@ contract KizunaFactory is IKizunaFactory {
         referrersFeeShare[referrer] = referrerFeeShare;
     }
 
+    /// @notice Register contract to earn fees.
+    /// @param feeSharingContract fee sharing smart contract address
+    /// @param recipient recipient of the ownership NFT
+    /// @return tokenId of the ownership NFT that collects fees
+    function register(
+        address feeSharingContract,
+        address recipient
+    ) external onlyOwner returns (uint256 tokenId) {
+        // bytes4(keccak256(bytes('register(address)')));
+        (bool success, bytes memory data) = feeSharingContract.call(
+            abi.encodeWithSelector(0x4420e486, recipient)
+        );
+
+        require(success, "KizunaFactory::register: register failed");
+
+        tokenId = abi.decode(data, (uint256));
+    }
+
+    /// @notice Assigns smart contract to an existing NFT to earn fees.
+    /// @param feeSharingContract fee sharing smart contract address
+    /// @param tokenId tokenId which will collect fees
+    /// @return tokenId of the ownership NFT that collects fees
+    function assign(
+        address feeSharingContract,
+        uint256 tokenId
+    ) external onlyOwner returns (uint256) {
+        // bytes4(keccak256(bytes('assign(uint256)')));
+        (bool success, bytes memory data) = feeSharingContract.call(
+            abi.encodeWithSelector(0x4c081138, tokenId)
+        );
+
+        require(success, "KizunaFactory::assign: assign failed");
+
+        return abi.decode(data, (uint256));
+    }
+
+    /// @notice Withdraws earned fees to `_recipient` address.
+    /// @param feeSharingContract fee sharing smart contract address
+    /// @param tokenId token Id
+    /// @param recipient recipient of fees
+    /// @param amount amount of fees to withdraw
+    /// @return amount of fees withdrawn
+    function withdraw(
+        address feeSharingContract,
+        uint256 tokenId,
+        address payable recipient,
+        uint256 amount
+    ) external onlyOwner returns (uint256) {
+        // bytes4(keccak256(bytes('withdraw(uint256, address, uint256)')));
+        (bool success, bytes memory data) = feeSharingContract.call(
+            abi.encodeWithSelector(0xe63697c8, tokenId, recipient, amount)
+        );
+
+        require(success, "KizunaFactory::withdraw: withdraw failed");
+
+        return abi.decode(data, (uint256));
+    }
+
     function feeInfo()
         external
         view
