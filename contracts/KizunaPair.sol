@@ -82,6 +82,18 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         factory = msg.sender;
     }
 
+    /**
+     * @dev Throws if called by any account other than the factory owner.
+     */
+    modifier onlyFactoryOwner() {
+        require(
+            msg.sender == IKizunaFactory(factory).owner(),
+            "KizunaPair: only factory's owner"
+        );
+
+        _;
+    }
+
     // called once by the factory at time of deployment
     function initialize(address _token0, address _token1) external override {
         require(msg.sender == factory && !initialized, "KizunaPair: FORBIDDEN");
@@ -146,11 +158,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         kLast = (stable && feeOn) ? _k(uint(reserve0), uint(reserve1)) : 0;
     }
 
-    function setPairTypeImmutable() external lock {
-        require(
-            msg.sender == IKizunaFactory(factory).owner(),
-            "KizunaPair: only factory's owner"
-        );
+    function setPairTypeImmutable() external onlyFactoryOwner lock {
         require(!pairTypeImmutable, "KizunaPair: already immutable");
 
         pairTypeImmutable = true;
@@ -620,16 +628,73 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
      *
      * Can only be called by factory's owner
      */
-    function drainWrongToken(address token, address to) external lock {
-        require(
-            msg.sender == IKizunaFactory(factory).owner(),
-            "KizunaPair: only factory's owner"
-        );
+    function drainWrongToken(
+        address token,
+        address to
+    ) external onlyFactoryOwner lock {
         require(
             token != token0 && token != token1,
             "KizunaPair: invalid token"
         );
         _safeTransfer(token, to, IERC20(token).balanceOf(address(this)));
         emit DrainWrongToken(token, to);
+    }
+
+    /// @notice Register contract to earn fees.
+    /// @param feeSharingContract fee sharing smart contract address
+    /// @param recipient recipient of the ownership NFT
+    /// @return tokenId of the ownership NFT that collects fees
+    function register(
+        address feeSharingContract,
+        address recipient
+    ) external onlyFactoryOwner returns (uint256 tokenId) {
+        // bytes4(keccak256(bytes('register(address)')));
+        (bool success, bytes memory data) = feeSharingContract.call(
+            abi.encodeWithSelector(0x4420e486, recipient)
+        );
+
+        require(success, "KizunaPair::register: register failed");
+
+        tokenId = abi.decode(data, (uint256));
+    }
+
+    /// @notice Assigns smart contract to an existing NFT to earn fees.
+    /// @param feeSharingContract fee sharing smart contract address
+    /// @param tokenId tokenId which will collect fees
+    /// @return tokenId of the ownership NFT that collects fees
+    function assign(
+        address feeSharingContract,
+        uint256 tokenId
+    ) external onlyFactoryOwner returns (uint256) {
+        // bytes4(keccak256(bytes('assign(uint256)')));
+        (bool success, bytes memory data) = feeSharingContract.call(
+            abi.encodeWithSelector(0x4c081138, tokenId)
+        );
+
+        require(success, "KizunaPair::assign: assign failed");
+
+        return abi.decode(data, (uint256));
+    }
+
+    /// @notice Withdraws earned fees to `_recipient` address.
+    /// @param feeSharingContract fee sharing smart contract address
+    /// @param tokenId token Id
+    /// @param recipient recipient of fees
+    /// @param amount amount of fees to withdraw
+    /// @return amount of fees withdrawn
+    function withdraw(
+        address feeSharingContract,
+        uint256 tokenId,
+        address payable recipient,
+        uint256 amount
+    ) external onlyFactoryOwner returns (uint256) {
+        // bytes4(keccak256(bytes('withdraw(uint256, address, uint256)')));
+        (bool success, bytes memory data) = feeSharingContract.call(
+            abi.encodeWithSelector(0xe63697c8, tokenId, recipient, amount)
+        );
+
+        require(success, "KizunaPair::withdraw: withdraw failed");
+
+        return abi.decode(data, (uint256));
     }
 }
