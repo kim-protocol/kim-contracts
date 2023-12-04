@@ -7,6 +7,7 @@ export default {
   networks: {
     mode: {
       url: 'https://mainnet.mode.network/',
+      ethNetwork: 'mode',
       chainId: 34443,
     },
     mode_testnet: {
