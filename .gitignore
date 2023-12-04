@@ -6,3 +6,4 @@ build/
 .history
 artifacts
 cache
+typechain-types
