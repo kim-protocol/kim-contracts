@@ -58,7 +58,11 @@ describe('KizunaFactory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(3725096)
+
+    // Coverage distorts gas consumption
+    if (!process.env.HARHDAT_COVERAGE) {
+      expect(receipt.gasUsed).to.eq(3725096)
+    }
   })
 
   it('setFeeTo', async () => {

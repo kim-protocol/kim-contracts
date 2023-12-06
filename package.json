@@ -48,7 +48,8 @@
         "prettier": "prettier --write 'contracts/**/*.sol'",
         "release": "npx thirdweb@latest release",
         "pretest": "yarn build",
-        "test": "hardhat test --show-stack-traces"
+        "test": "hardhat test --show-stack-traces",
+        "coverage": "export HARHDAT_COVERAGE=true && hardhat coverage"
     },
     "license": "GPL-3.0-or-later",
     "dependencies": {

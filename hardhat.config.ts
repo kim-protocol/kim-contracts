@@ -1,6 +1,7 @@
 export { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import 'hardhat-contract-sizer'
+import 'solidity-coverage'
 
 /** @type import('hardhat/config').HardhatUserConfig */
 export default {
