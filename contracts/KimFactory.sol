@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.5;
 
-import "./interfaces/IKizunaFactory.sol";
-import "./KizunaPair.sol";
+import "./interfaces/IFeeSharing.sol";
+import "./interfaces/IKimFactory.sol";
+import "./KimPair.sol";
 
-contract KizunaFactory is IKizunaFactory {
+contract KimFactory is IKimFactory {
     address public override owner;
     address public override feePercentOwner;
     address public override setStableOwner;
@@ -56,7 +57,7 @@ contract KizunaFactory is IKizunaFactory {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(owner == msg.sender, "KizunaFactory: caller is not the owner");
+        require(owner == msg.sender, "KimFactory: caller is not the owner");
         _;
     }
 
@@ -68,22 +69,22 @@ contract KizunaFactory is IKizunaFactory {
         address tokenA,
         address tokenB
     ) external override returns (address pair) {
-        require(tokenA != tokenB, "KizunaFactory: IDENTICAL_ADDRESSES");
+        require(tokenA != tokenB, "KimFactory: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB
             ? (tokenA, tokenB)
             : (tokenB, tokenA);
-        require(token0 != address(0), "KizunaFactory: ZERO_ADDRESS");
+        require(token0 != address(0), "KimFactory: ZERO_ADDRESS");
         require(
             getPair[token0][token1] == address(0),
-            "KizunaFactory: PAIR_EXISTS"
+            "KimFactory: PAIR_EXISTS"
         ); // single check is sufficient
-        bytes memory bytecode = type(KizunaPair).creationCode;
+        bytes memory bytecode = type(KimPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        require(pair != address(0), "KizunaFactory: FAILED");
-        KizunaPair(pair).initialize(token0, token1);
+        require(pair != address(0), "KimFactory: FAILED");
+        KimPair(pair).initialize(token0, token1);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
@@ -91,23 +92,20 @@ contract KizunaFactory is IKizunaFactory {
     }
 
     function setOwner(address _owner) external onlyOwner {
-        require(_owner != address(0), "KizunaFactory: zero address");
+        require(_owner != address(0), "KimFactory: zero address");
         emit OwnershipTransferred(owner, _owner);
         owner = _owner;
     }
 
     function setFeePercentOwner(address _feePercentOwner) external onlyOwner {
-        require(_feePercentOwner != address(0), "KizunaFactory: zero address");
+        require(_feePercentOwner != address(0), "KimFactory: zero address");
         emit FeePercentOwnershipTransferred(feePercentOwner, _feePercentOwner);
         feePercentOwner = _feePercentOwner;
     }
 
     function setSetStableOwner(address _setStableOwner) external {
-        require(
-            msg.sender == setStableOwner,
-            "KizunaFactory: not setStableOwner"
-        );
-        require(_setStableOwner != address(0), "KizunaFactory: zero address");
+        require(msg.sender == setStableOwner, "KimFactory: not setStableOwner");
+        require(_setStableOwner != address(0), "KimFactory: zero address");
         emit SetStableOwnershipTransferred(setStableOwner, _setStableOwner);
         setStableOwner = _setStableOwner;
     }
@@ -125,11 +123,11 @@ contract KizunaFactory is IKizunaFactory {
     function setOwnerFeeShare(uint newOwnerFeeShare) external onlyOwner {
         require(
             newOwnerFeeShare > 0,
-            "KizunaFactory: ownerFeeShare mustn't exceed minimum"
+            "KimFactory: ownerFeeShare mustn't exceed minimum"
         );
         require(
             newOwnerFeeShare <= OWNER_FEE_SHARE_MAX,
-            "KizunaFactory: ownerFeeShare mustn't exceed maximum"
+            "KimFactory: ownerFeeShare mustn't exceed maximum"
         );
         emit OwnerFeeShareUpdated(ownerFeeShare, newOwnerFeeShare);
         ownerFeeShare = newOwnerFeeShare;
@@ -144,10 +142,10 @@ contract KizunaFactory is IKizunaFactory {
         address referrer,
         uint referrerFeeShare
     ) external onlyOwner {
-        require(referrer != address(0), "KizunaFactory: zero address");
+        require(referrer != address(0), "KimFactory: zero address");
         require(
             referrerFeeShare <= REFERER_FEE_SHARE_MAX,
-            "KizunaFactory: referrerFeeShare mustn't exceed maximum"
+            "KimFactory: referrerFeeShare mustn't exceed maximum"
         );
         emit ReferrerFeeShareUpdated(
             referrer,
@@ -165,14 +163,7 @@ contract KizunaFactory is IKizunaFactory {
         address feeSharingContract,
         address recipient
     ) external onlyOwner returns (uint256 tokenId) {
-        // bytes4(keccak256(bytes('register(address)')));
-        (bool success, bytes memory data) = feeSharingContract.call(
-            abi.encodeWithSelector(0x4420e486, recipient)
-        );
-
-        require(success, "KizunaFactory::register: register failed");
-
-        tokenId = abi.decode(data, (uint256));
+        (tokenId) = IFeeSharing(feeSharingContract).register(recipient);
     }
 
     /// @notice Assigns smart contract to an existing NFT to earn fees.
@@ -183,14 +174,7 @@ contract KizunaFactory is IKizunaFactory {
         address feeSharingContract,
         uint256 tokenId
     ) external onlyOwner returns (uint256) {
-        // bytes4(keccak256(bytes('assign(uint256)')));
-        (bool success, bytes memory data) = feeSharingContract.call(
-            abi.encodeWithSelector(0x4c081138, tokenId)
-        );
-
-        require(success, "KizunaFactory::assign: assign failed");
-
-        return abi.decode(data, (uint256));
+        return IFeeSharing(feeSharingContract).assign(tokenId);
     }
 
     /// @notice Withdraws earned fees to `_recipient` address.
@@ -210,7 +194,7 @@ contract KizunaFactory is IKizunaFactory {
             abi.encodeWithSelector(0xe63697c8, tokenId, recipient, amount)
         );
 
-        require(success, "KizunaFactory::withdraw: withdraw failed");
+        require(success, "KimFactory::withdraw: withdraw failed");
 
         return abi.decode(data, (uint256));
     }

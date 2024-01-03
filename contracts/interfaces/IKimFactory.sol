@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.5;
 
-interface IKizunaFactory {
+interface IKimFactory {
     event PairCreated(
         address indexed token0,
         address indexed token1,
