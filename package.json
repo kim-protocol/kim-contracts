@@ -1,6 +1,6 @@
 {
-    "name": "kizuna-core",
-    "description": "🎛 Core contracts for the Kizuna AMM protocol",
+    "name": "kim-core",
+    "description": "🎛 Core contracts for the Kim AMM protocol",
     "version": "1.0.0",
     "keywords": [
         "uniswap",
@@ -8,7 +8,7 @@
         "v2",
         "core",
         "uniswap-v2",
-        "kizuna"
+        "kim"
     ],
     "files": [
         "contracts",

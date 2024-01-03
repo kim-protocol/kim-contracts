@@ -95,7 +95,7 @@ describe('StableSwap', () => {
       expect(await pair.getAmountOut(swapAmount, await token0.getAddress())).to.eq(expectedOutputAmount)
       await expect(
         pair.swap(0, BigInt(expectedOutputAmount.valueOf()) + BigInt(1), wallet.address, '0x'),
-      ).to.be.revertedWith('KizunaPair: K')
+      ).to.be.revertedWith('KimPair: K')
       await pair.swap(0, expectedOutputAmount, wallet.address, '0x')
     })
   })
@@ -124,7 +124,7 @@ describe('StableSwap', () => {
       await addLiquidity(token0Amount, token1Amount)
       await token0.transfer(await pair.getAddress(), inputAmount)
       await expect(pair.swap(BigInt(outputAmount.valueOf()) + BigInt(2), 0, wallet.address, '0x')).to.be.revertedWith(
-        'KizunaPair: K',
+        'KimPair: K',
       )
       await pair.swap(outputAmount, 0, wallet.address, '0x')
     })
