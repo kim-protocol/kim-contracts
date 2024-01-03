@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.5;
 
+import "./interfaces/IFeeSharing.sol";
 import "./interfaces/IKimFactory.sol";
 import "./KimPair.sol";
 
@@ -162,14 +163,7 @@ contract KimFactory is IKimFactory {
         address feeSharingContract,
         address recipient
     ) external onlyOwner returns (uint256 tokenId) {
-        // bytes4(keccak256(bytes('register(address)')));
-        (bool success, bytes memory data) = feeSharingContract.call(
-            abi.encodeWithSelector(0x4420e486, recipient)
-        );
-
-        require(success, "KimFactory::register: register failed");
-
-        tokenId = abi.decode(data, (uint256));
+        (tokenId) = IFeeSharing(feeSharingContract).register(recipient);
     }
 
     /// @notice Assigns smart contract to an existing NFT to earn fees.
@@ -180,14 +174,7 @@ contract KimFactory is IKimFactory {
         address feeSharingContract,
         uint256 tokenId
     ) external onlyOwner returns (uint256) {
-        // bytes4(keccak256(bytes('assign(uint256)')));
-        (bool success, bytes memory data) = feeSharingContract.call(
-            abi.encodeWithSelector(0x4c081138, tokenId)
-        );
-
-        require(success, "KimFactory::assign: assign failed");
-
-        return abi.decode(data, (uint256));
+        return IFeeSharing(feeSharingContract).assign(tokenId);
     }
 
     /// @notice Withdraws earned fees to `_recipient` address.

@@ -61,7 +61,7 @@ describe('KimFactory', () => {
 
     // Coverage distorts gas consumption
     if (!process.env.HARHDAT_COVERAGE) {
-      expect(receipt.gasUsed).to.eq(3702000)
+      expect(receipt.gasUsed).to.eq(3611062)
     }
   })
 
