@@ -1,5 +1,6 @@
 export { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
+import '@nomicfoundation/hardhat-verify'
 import 'hardhat-contract-sizer'
 import 'solidity-coverage'
 
@@ -16,6 +17,25 @@ export default {
       ethNetwork: 'sepolia',
       chainId: 919,
     },
+  },
+  etherscan: {
+    apiKey: {
+      testnet: 'api key',
+      mode: 'api key',
+    },
+    customChains: [
+      {
+        network: 'mode',
+        chainId: 34443,
+        urls: {
+          apiURL: 'https://explorer.mode.network/api/',
+          browserURL: 'https://explorer.mode.network/',
+        },
+      },
+    ],
+  },
+  sourcify: {
+    enabled: true,
   },
   paths: {
     artifacts: './artifacts',
