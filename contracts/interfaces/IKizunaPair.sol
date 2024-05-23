@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IKizunaPair {
+import './IUniswapV2ERC20.sol';
+
+interface IKizunaPair is IUniswapV2ERC20 {
     event Mint(address indexed sender, uint amount0, uint amount1);
     event Burn(
         address indexed sender,
