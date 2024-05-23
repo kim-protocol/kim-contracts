@@ -2,3 +2,7 @@ node_modules/
 build/
 .env
 .idea
+.vscode
+.history
+artifacts-zk
+cache-zk

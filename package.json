@@ -18,35 +18,33 @@
         "node": ">=10"
     },
     "devDependencies": {
-        "@truffle/hdwallet-provider": "^1.4.3",
-        "@types/chai": "^4.2.6",
-        "@types/mocha": "^5.2.7",
-        "chai": "^4.2.0",
-        "dotenv": "^10.0.0",
-        "eth-gas-reporter": "^0.2.22",
-        "ethereum-waffle": "^2.4.1",
-        "ethereumjs-util": "^6.2.0",
-        "mocha": "^6.2.2",
-        "prettier": "^1.19.1",
-        "rimraf": "^3.0.0",
-        "solc": "0.5.16",
-        "truffle-typings": "^1.0.8",
-        "ts-node": "^8.5.4",
-        "typescript": "^3.7.3"
+        "@matterlabs/hardhat-zksync-solc": "^0.4.1",
+        "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+        "@nomicfoundation/hardhat-ethers": "^3.0.4",
+        "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "@nomicfoundation/hardhat-verify": "^1.1.1",
+        "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
+        "@typechain/ethers-v6": "^0.5.0",
+        "@typechain/hardhat": "^9.0.0",
+        "@types/chai": "^4.3.5",
+        "@types/mocha": "^10.0.1",
+        "ethers": "^6.7.1",
+        "hardhat": "^2.17.2",
+        "hardhat-contract-sizer": "^2.10.0",
+        "hardhat-gas-reporter": "^1.0.9",
+        "solidity-coverage": "^0.8.4",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
     },
     "scripts": {
-        "lint": "yarn prettier ./test/*.ts --check",
-        "lint:fix": "yarn prettier ./test/*.ts --write",
-        "compile": "truffle compile",
-        "pretest": "yarn compile",
-        "test": "mocha",
-        "prepublishOnly": "yarn test"
+        "build": "npx thirdweb@latest detect",
+        "deploy": "npx thirdweb@latest deploy",
+        "release": "npx thirdweb@latest release"
     },
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "@typechain/truffle-v5": "^5.0.0",
-        "pbkdf2": "^3.1.2",
-        "truffle-flattener": "^1.6.0",
-        "truffle-plugin-verify": "^0.5.21"
+        "@thirdweb-dev/contracts": "^3.9.2",
+        "zksync-web3": "^0.14.3"
     }
 }
