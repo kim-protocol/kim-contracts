@@ -8,7 +8,7 @@ import { pairFixture } from './shared/fixtures'
 
 const MINIMUM_LIQUIDITY = BigInt(10) ** BigInt(3)
 
-describe('KizunaPair', () => {
+describe('KimPair', () => {
   let wallet: Wallet
   let other: Wallet
 
@@ -89,7 +89,7 @@ describe('KizunaPair', () => {
 
       expect(await pair.getAmountOut(swapAmount, await token0.getAddress())).to.eq(expectedOutputAmount)
       await expect(pair.swap(0, expectedOutputAmount.valueOf() + BigInt(1), wallet.address, '0x')).to.be.revertedWith(
-        'KizunaPair: K',
+        'KimPair: K',
       )
       await pair.swap(0, expectedOutputAmount, wallet.address, '0x')
     })
@@ -119,7 +119,7 @@ describe('KizunaPair', () => {
       await addLiquidity(token0Amount, token1Amount)
       await token0.transfer(await pair.getAddress(), inputAmount)
       await expect(pair.swap(outputAmount.valueOf() + BigInt(2), 0, wallet.address, '0x')).to.be.revertedWith(
-        'KizunaPair: K',
+        'KimPair: K',
       )
       await pair.swap(outputAmount, 0, wallet.address, '0x')
     })

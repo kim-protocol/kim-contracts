@@ -1,4 +1,4 @@
-# Kizuna Core Contracts
+# Kim Core Contracts
 
 ## Uniswap V2
 
@@ -31,8 +31,8 @@ Select the contract you want to deploy:
 
 ```
 ? Choose which contract(s) to deploy …  Use <space> to select, <return> to submit
-⬡ KizunaFactory
-⬡ KizunaPair
+⬡ KimFactory
+⬡ KimPair
 ⬡ Migrations
 ⬡ UniswapV2ERC20
 ⬡ ERC20
