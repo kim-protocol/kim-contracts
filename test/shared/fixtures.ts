@@ -3,7 +3,7 @@ import { ethers } from 'hardhat'
 
 import { expandTo18Decimals } from './utilities'
 
-import { abi as kizunaPairAbi } from '../../artifacts/contracts/KizunaPair.sol/KizunaPair.json'
+import { abi as kimPairAbi } from '../../artifacts/contracts/KimPair.sol/KimPair.json'
 
 export interface FactoryFixture {
   factory: Contract
@@ -14,8 +14,8 @@ export interface FactoryFixture {
 export async function factoryFixture(): Promise<FactoryFixture> {
   const [_, other] = await ethers.getSigners()
 
-  const kizunaFactory = await ethers.getContractFactory('KizunaFactory')
-  const factory = await kizunaFactory.deploy(other)
+  const kimFactory = await ethers.getContractFactory('KimFactory')
+  const factory = await kimFactory.deploy(other)
 
   const tokenAFactory = await ethers.getContractFactory('ERC20')
   const tokenA = await tokenAFactory.deploy(expandTo18Decimals(10000))
@@ -39,7 +39,7 @@ export async function pairFixture(): Promise<PairFixture> {
 
   await factory.createPair(await tokenA.getAddress(), await tokenB.getAddress())
   const pairAddress = await factory.getPair(await tokenA.getAddress(), await tokenB.getAddress())
-  const pair = new Contract(pairAddress, kizunaPairAbi, wallet).connect(wallet)
+  const pair = new Contract(pairAddress, kimPairAbi, wallet).connect(wallet)
 
   const token0Address = await pair.token0()
   const token0 = tokenA.address === token0Address ? tokenA : tokenB

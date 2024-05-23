@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.5;
 
-import "./interfaces/IKizunaPair.sol";
+import "./interfaces/IKimPair.sol";
 import "./UniswapV2ERC20.sol";
 import "./libraries/Math.sol";
 import "./interfaces/IERC20.sol";
-import "./interfaces/IKizunaFactory.sol";
+import "./interfaces/IKimFactory.sol";
 import "./interfaces/IUniswapV2Callee.sol";
 
-contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
+contract KimPair is IKimPair, UniswapV2ERC20 {
     using SafeMath for uint;
 
     uint public constant override MINIMUM_LIQUIDITY = 10 ** 3;
@@ -39,7 +39,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
 
     uint private unlocked = 1;
     modifier lock() {
-        require(unlocked == 1, "KizunaPair: LOCKED");
+        require(unlocked == 1, "KimPair: LOCKED");
         unlocked = 0;
         _;
         unlocked = 1;
@@ -68,7 +68,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         );
         require(
             success && (data.length == 0 || abi.decode(data, (bool))),
-            "KizunaPair: TRANSFER_FAILED"
+            "KimPair: TRANSFER_FAILED"
         );
     }
 
@@ -87,8 +87,8 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
      */
     modifier onlyFactoryOwner() {
         require(
-            msg.sender == IKizunaFactory(factory).owner(),
-            "KizunaPair: only factory's owner"
+            msg.sender == IKimFactory(factory).owner(),
+            "KimPair: only factory's owner"
         );
 
         _;
@@ -96,7 +96,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
 
     // called once by the factory at time of deployment
     function initialize(address _token0, address _token1) external override {
-        require(msg.sender == factory && !initialized, "KizunaPair: FORBIDDEN");
+        require(msg.sender == factory && !initialized, "KimPair: FORBIDDEN");
         // sufficient check
         token0 = _token0;
         token1 = _token1;
@@ -117,17 +117,17 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         uint16 newToken1FeePercent
     ) external override lock {
         require(
-            msg.sender == IKizunaFactory(factory).feePercentOwner(),
-            "KizunaPair: only factory's feeAmountOwner"
+            msg.sender == IKimFactory(factory).feePercentOwner(),
+            "KimPair: only factory's feeAmountOwner"
         );
         require(
             newToken0FeePercent <= MAX_FEE_PERCENT &&
                 newToken1FeePercent <= MAX_FEE_PERCENT,
-            "KizunaPair: feePercent mustn't exceed the maximum"
+            "KimPair: feePercent mustn't exceed the maximum"
         );
         require(
             newToken0FeePercent > 0 && newToken1FeePercent > 0,
-            "KizunaPair: feePercent mustn't exceed the minimum"
+            "KimPair: feePercent mustn't exceed the minimum"
         );
         token0FeePercent = newToken0FeePercent;
         token1FeePercent = newToken1FeePercent;
@@ -140,15 +140,15 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         uint112 expectedReserve1
     ) external lock {
         require(
-            msg.sender == IKizunaFactory(factory).setStableOwner(),
-            "KizunaPair: only factory's setStableOwner"
+            msg.sender == IKimFactory(factory).setStableOwner(),
+            "KimPair: only factory's setStableOwner"
         );
-        require(!pairTypeImmutable, "KizunaPair: immutable");
+        require(!pairTypeImmutable, "KimPair: immutable");
 
-        require(stable != stableSwap, "KizunaPair: no update");
+        require(stable != stableSwap, "KimPair: no update");
         require(
             expectedReserve0 == reserve0 && expectedReserve1 == reserve1,
-            "KizunaPair: failed"
+            "KimPair: failed"
         );
 
         bool feeOn = _mintFee(reserve0, reserve1);
@@ -159,7 +159,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     }
 
     function setPairTypeImmutable() external onlyFactoryOwner lock {
-        require(!pairTypeImmutable, "KizunaPair: already immutable");
+        require(!pairTypeImmutable, "KimPair: already immutable");
 
         pairTypeImmutable = true;
         emit SetPairTypeImmutable();
@@ -169,7 +169,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     function _update(uint balance0, uint balance1) private {
         require(
             balance0 <= uint112(-1) && balance1 <= uint112(-1),
-            "KizunaPair: OVERFLOW"
+            "KimPair: OVERFLOW"
         );
 
         reserve0 = uint112(balance0);
@@ -185,7 +185,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     ) private returns (bool feeOn) {
         if (stableSwap) return false;
 
-        (uint ownerFeeShare, address feeTo) = IKizunaFactory(factory).feeInfo();
+        (uint ownerFeeShare, address feeTo) = IKimFactory(factory).feeInfo();
         feeOn = feeTo != address(0);
         uint _kLast = kLast;
         // gas savings
@@ -232,7 +232,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
                 amount1.mul(_totalSupply) / _reserve1
             );
         }
-        require(liquidity > 0, "KizunaPair: INSUFFICIENT_LIQUIDITY_MINTED");
+        require(liquidity > 0, "KimPair: INSUFFICIENT_LIQUIDITY_MINTED");
         _mint(to, liquidity);
 
         _update(balance0, balance1);
@@ -258,7 +258,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
         require(
             amount0 > 0 && amount1 > 0,
-            "KizunaPair: INSUFFICIENT_LIQUIDITY_BURNED"
+            "KimPair: INSUFFICIENT_LIQUIDITY_BURNED"
         );
         _burn(address(this), liquidity);
         _safeTransfer(_token0, to, amount0);
@@ -331,7 +331,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
     ) internal lock {
         require(
             tokensData.amount0Out > 0 || tokensData.amount1Out > 0,
-            "KizunaPair: INSUFFICIENT_OUTPUT_AMOUNT"
+            "KimPair: INSUFFICIENT_OUTPUT_AMOUNT"
         );
 
         (
@@ -343,13 +343,13 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         require(
             tokensData.amount0Out < _reserve0 &&
                 tokensData.amount1Out < _reserve1,
-            "KizunaPair: INSUFFICIENT_LIQUIDITY"
+            "KimPair: INSUFFICIENT_LIQUIDITY"
         );
 
         {
             require(
                 to != tokensData.token0 && to != tokensData.token1,
-                "KizunaPair: INVALID_TO"
+                "KimPair: INVALID_TO"
             );
             // optimistically transfer tokens
             if (tokensData.amount0Out > 0)
@@ -380,7 +380,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             : 0;
         require(
             amount0In > 0 || amount1In > 0,
-            "KizunaPair: INSUFFICIENT_INPUT_AMOUNT"
+            "KimPair: INSUFFICIENT_INPUT_AMOUNT"
         );
 
         tokensData.remainingFee0 =
@@ -395,7 +395,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             uint fee = 0;
 
             uint referrerInputFeeShare = referrer != address(0)
-                ? IKizunaFactory(factory).referrersFeeShare(referrer)
+                ? IKimFactory(factory).referrersFeeShare(referrer)
                 : 0;
             if (referrerInputFeeShare > 0) {
                 if (amount0In > 0) {
@@ -423,7 +423,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             }
 
             if (stableSwap) {
-                (uint ownerFeeShare, address feeTo) = IKizunaFactory(factory)
+                (uint ownerFeeShare, address feeTo) = IKimFactory(factory)
                     .feeInfo();
                 if (feeTo != address(0)) {
                     ownerFeeShare = FEE_DENOMINATOR
@@ -474,7 +474,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             require(
                 _k(balance0Adjusted, balance1Adjusted) >=
                     _k(uint(_reserve0), uint(_reserve1)),
-                "KizunaPair: K"
+                "KimPair: K"
             );
         }
         _update(tokensData.balance0, tokensData.balance1);
@@ -618,7 +618,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         uint token1Balance = IERC20(token1).balanceOf(address(this));
         require(
             token0Balance != 0 && token1Balance != 0,
-            "KizunaPair: liquidity ratio not initialized"
+            "KimPair: liquidity ratio not initialized"
         );
         _update(token0Balance, token1Balance);
     }
@@ -632,10 +632,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
         address token,
         address to
     ) external onlyFactoryOwner lock {
-        require(
-            token != token0 && token != token1,
-            "KizunaPair: invalid token"
-        );
+        require(token != token0 && token != token1, "KimPair: invalid token");
         _safeTransfer(token, to, IERC20(token).balanceOf(address(this)));
         emit DrainWrongToken(token, to);
     }
@@ -653,7 +650,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             abi.encodeWithSelector(0x4420e486, recipient)
         );
 
-        require(success, "KizunaPair::register: register failed");
+        require(success, "KimPair::register: register failed");
 
         tokenId = abi.decode(data, (uint256));
     }
@@ -671,7 +668,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             abi.encodeWithSelector(0x4c081138, tokenId)
         );
 
-        require(success, "KizunaPair::assign: assign failed");
+        require(success, "KimPair::assign: assign failed");
 
         return abi.decode(data, (uint256));
     }
@@ -693,7 +690,7 @@ contract KizunaPair is IKizunaPair, UniswapV2ERC20 {
             abi.encodeWithSelector(0xe63697c8, tokenId, recipient, amount)
         );
 
-        require(success, "KizunaPair::withdraw: withdraw failed");
+        require(success, "KimPair::withdraw: withdraw failed");
 
         return abi.decode(data, (uint256));
     }

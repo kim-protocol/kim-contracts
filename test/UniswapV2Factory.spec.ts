@@ -5,11 +5,11 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 
 import { factoryFixture } from './shared/fixtures'
 
-import { abi as kizunaPairAbi } from '../artifacts/contracts/KizunaPair.sol/KizunaPair.json'
+import { abi as kimPairAbi } from '../artifacts/contracts/KimPair.sol/KimPair.json'
 
 let TEST_ADDRESSES: [string, string]
 
-describe('KizunaFactory', () => {
+describe('KimFactory', () => {
   let wallet: Wallet
   let other: Wallet
 
@@ -41,7 +41,7 @@ describe('KizunaFactory', () => {
     expect(await factory.allPairs(0)).to.eq(create2Address)
     expect(await factory.allPairsLength()).to.eq(1)
 
-    const pair = new Contract(create2Address, kizunaPairAbi, wallet)
+    const pair = new Contract(create2Address, kimPairAbi, wallet)
     expect(await pair.factory()).to.eq(await factory.getAddress())
     expect(await pair.token0()).to.eq(TEST_ADDRESSES[1])
     expect(await pair.token1()).to.eq(TEST_ADDRESSES[0])
@@ -61,13 +61,13 @@ describe('KizunaFactory', () => {
 
     // Coverage distorts gas consumption
     if (!process.env.HARHDAT_COVERAGE) {
-      expect(receipt.gasUsed).to.eq(3725096)
+      expect(receipt.gasUsed).to.eq(3702000)
     }
   })
 
   it('setFeeTo', async () => {
     await expect(factory.connect(other).setFeeTo(other.address)).to.be.revertedWith(
-      'KizunaFactory: caller is not the owner',
+      'KimFactory: caller is not the owner',
     )
     await factory.setFeeTo(wallet.address)
     expect(await factory.feeTo()).to.eq(wallet.address)
