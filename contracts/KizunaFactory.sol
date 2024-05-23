@@ -1,31 +1,26 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./interfaces/IKizunaFactory.sol";
 import "./KizunaPair.sol";
 
 contract KizunaFactory is IKizunaFactory {
-    address public owner;
-    address public feePercentOwner;
-    address public setStableOwner;
-    address public feeTo;
+    address public override owner;
+    address public override feePercentOwner;
+    address public override setStableOwner;
+    address public override feeTo;
 
     //uint public constant FEE_DENOMINATOR = 100000;
     uint public constant OWNER_FEE_SHARE_MAX = 100000; // 100%
-    uint public ownerFeeShare = 50000; // default value = 50%
+    uint public override ownerFeeShare = 50000; // default value = 50%
 
     uint public constant REFERER_FEE_SHARE_MAX = 20000; // 20%
-    mapping(address => uint) public referrersFeeShare; // fees are taken from the user input
+    mapping(address => uint) public override referrersFeeShare; // fees are taken from the user input
 
-    mapping(address => mapping(address => address)) public getPair;
-    address[] public allPairs;
+    mapping(address => mapping(address => address)) public override getPair;
+    address[] public override allPairs;
 
     event FeeToTransferred(address indexed prevFeeTo, address indexed newFeeTo);
-    event PairCreated(
-        address indexed token0,
-        address indexed token1,
-        address pair,
-        uint length
-    );
     event OwnerFeeShareUpdated(uint prevOwnerFeeShare, uint ownerFeeShare);
     event OwnershipTransferred(
         address indexed prevOwner,
@@ -45,7 +40,7 @@ contract KizunaFactory is IKizunaFactory {
         uint referrerFeeShare
     );
 
-    constructor(address feeTo_) public {
+    constructor(address feeTo_) {
         owner = msg.sender;
         feePercentOwner = msg.sender;
         setStableOwner = msg.sender;
@@ -65,14 +60,14 @@ contract KizunaFactory is IKizunaFactory {
         _;
     }
 
-    function allPairsLength() external view returns (uint) {
+    function allPairsLength() external view override returns (uint) {
         return allPairs.length;
     }
 
     function createPair(
         address tokenA,
         address tokenB
-    ) external returns (address pair) {
+    ) external override returns (address pair) {
         require(tokenA != tokenB, "KizunaFactory: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB
             ? (tokenA, tokenB)
@@ -117,7 +112,7 @@ contract KizunaFactory is IKizunaFactory {
         setStableOwner = _setStableOwner;
     }
 
-    function setFeeTo(address _feeTo) external onlyOwner {
+    function setFeeTo(address _feeTo) external override onlyOwner {
         emit FeeToTransferred(feeTo, _feeTo);
         feeTo = _feeTo;
     }
@@ -165,6 +160,7 @@ contract KizunaFactory is IKizunaFactory {
     function feeInfo()
         external
         view
+        override
         returns (uint _ownerFeeShare, address _feeTo)
     {
         _ownerFeeShare = ownerFeeShare;
