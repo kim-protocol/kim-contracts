@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.6.5;
 
 import "./interfaces/IKizunaFactory.sol";
 import "./KizunaPair.sol";
@@ -40,7 +40,7 @@ contract KizunaFactory is IKizunaFactory {
         uint referrerFeeShare
     );
 
-    constructor(address feeTo_) {
+    constructor(address feeTo_) public {
         owner = msg.sender;
         feePercentOwner = msg.sender;
         setStableOwner = msg.sender;

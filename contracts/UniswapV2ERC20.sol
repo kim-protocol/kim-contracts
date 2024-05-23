@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.6.5;
 
 import "./interfaces/IUniswapV2ERC20.sol";
 import "./libraries/SafeMath.sol";
@@ -20,7 +20,7 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
     mapping(address => uint) public override nonces;
 
-    constructor() {
+    constructor() public {
         uint chainId;
         assembly {
             chainId := chainid()
@@ -79,7 +79,7 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         address to,
         uint value
     ) external override returns (bool) {
-        if (allowance[from][msg.sender] != type(uint).min) {
+        if (allowance[from][msg.sender] != uint(-1)) {
             uint remaining = allowance[from][msg.sender].sub(value);
             allowance[from][msg.sender] = remaining;
             emit Approval(from, msg.sender, remaining);
