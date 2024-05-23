@@ -11,7 +11,7 @@ export default {
       url: 'https://mainnet.mode.network/',
       chainId: 34443,
     },
-    mode_testnet: {
+    testnet: {
       url: 'https://sepolia.mode.network/',
       ethNetwork: 'sepolia',
       chainId: 919,
@@ -29,6 +29,14 @@ export default {
         urls: {
           apiURL: 'https://explorer.mode.network/api/',
           browserURL: 'https://explorer.mode.network/',
+        },
+      },
+      {
+        network: 'testnet',
+        chainId: 919,
+        urls: {
+          apiURL: 'https://sepolia.explorer.mode.network/api/',
+          browserURL: 'https://sepolia.explorer.mode.network/',
         },
       },
     ],
