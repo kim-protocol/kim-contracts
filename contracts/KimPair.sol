@@ -5,6 +5,7 @@ import "./interfaces/IKimPair.sol";
 import "./UniswapV2ERC20.sol";
 import "./libraries/Math.sol";
 import "./interfaces/IERC20.sol";
+import "./interfaces/IFeeSharing.sol";
 import "./interfaces/IKimFactory.sol";
 import "./interfaces/IUniswapV2Callee.sol";
 
@@ -645,14 +646,7 @@ contract KimPair is IKimPair, UniswapV2ERC20 {
         address feeSharingContract,
         address recipient
     ) external onlyFactoryOwner returns (uint256 tokenId) {
-        // bytes4(keccak256(bytes('register(address)')));
-        (bool success, bytes memory data) = feeSharingContract.call(
-            abi.encodeWithSelector(0x4420e486, recipient)
-        );
-
-        require(success, "KimPair::register: register failed");
-
-        tokenId = abi.decode(data, (uint256));
+        (tokenId) = IFeeSharing(feeSharingContract).register(recipient);
     }
 
     /// @notice Assigns smart contract to an existing NFT to earn fees.
@@ -663,14 +657,7 @@ contract KimPair is IKimPair, UniswapV2ERC20 {
         address feeSharingContract,
         uint256 tokenId
     ) external onlyFactoryOwner returns (uint256) {
-        // bytes4(keccak256(bytes('assign(uint256)')));
-        (bool success, bytes memory data) = feeSharingContract.call(
-            abi.encodeWithSelector(0x4c081138, tokenId)
-        );
-
-        require(success, "KimPair::assign: assign failed");
-
-        return abi.decode(data, (uint256));
+        return IFeeSharing(feeSharingContract).assign(tokenId);
     }
 
     /// @notice Withdraws earned fees to `_recipient` address.
