@@ -61,7 +61,10 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         emit Transfer(from, to, value);
     }
 
-    function approve(address spender, uint value) external override returns (bool) {
+    function approve(
+        address spender,
+        uint value
+    ) external override returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
     }
