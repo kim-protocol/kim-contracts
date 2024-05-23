@@ -5,10 +5,10 @@ require('hardhat-contract-sizer');
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   networks: {
-    mode_testnet: {
-      url: "https://sepolia.mode.network/",
-      ethNetwork: "sepolia",
-      chainId: 919,
+    mode: {
+      url: "https://mainnet.mode.network/",
+      ethNetwork: "mode",
+      chainId: 34443,
     },
   },
   paths: {
