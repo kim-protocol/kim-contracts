@@ -7,6 +7,10 @@ import 'solidity-coverage'
 /** @type import('hardhat/config').HardhatUserConfig */
 export default {
   networks: {
+    base: {
+      url: 'https://mainnet.base.org/',
+      chainId: 8453,
+    },
     mode: {
       url: 'https://mainnet.mode.network/',
       chainId: 34443,
@@ -21,8 +25,17 @@ export default {
     apiKey: {
       testnet: 'api key',
       mode: 'api key',
+      base: 'api key',
     },
     customChains: [
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api/',
+          browserURL: 'https://basescan.org/',
+        },
+      },
       {
         network: 'mode',
         chainId: 34443,
